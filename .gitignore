@@ -12,6 +12,9 @@
 # CSS
 /src/**/*.css
 
+# vscode
+/.vscode
+
 # misc
 .DS_Store
 .env.local
