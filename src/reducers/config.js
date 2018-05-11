@@ -1,6 +1,7 @@
 const initialState = {
-  host: 'localhost',
-  port: '6800'
+  host: localStorage.getItem('host'),
+  port: localStorage.getItem('port'),
+  secret: localStorage.getItem('secret')
 }
 
 export default (state = initialState, action) => {

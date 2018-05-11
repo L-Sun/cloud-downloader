@@ -41,12 +41,13 @@ class Navigation extends Component {
   static propTypes = {
     ui: PropTypes.object.isRequired,
     updateUI: PropTypes.func.isRequired,
+    classes: PropTypes.object.isRequired,
   }
 
   openConfigPanel = () => {
-    this.props.updateUI({isConfigPanelOpened: true})
+    this.props.updateUI({ isConfigPanelOpened: true })
   }
-  
+
 
   render() {
     const { ui, classes } = this.props

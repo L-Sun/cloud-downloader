@@ -5,12 +5,12 @@ const formatProgress = (x, y) => {
   return parseFloat((parseFloat(x) / parseFloat(y) * 100).toFixed(2))
 }
 
-const formatSize = (size, type="size") => {
+const formatSize = (size, type = "size") => {
   const index = Math.floor((size.length - 1) / 3)
   const value = (parseInt(size, 10) / 1000 ** index).toFixed(2)
-  if (type==="size") {
+  if (type === "size") {
     return value + ['B', 'KB', 'MB', 'GB'][index]
-  } else if(type==="speed") {
+  } else if (type === "speed") {
     return value + ['B/s', 'KB/s', 'MB/s', 'GB/s'][index]
   }
 }
@@ -49,7 +49,7 @@ const formatTask = (task) => {
   if (task.files.length === 1) {
     result['name'] = task.files[0].path.split('/').pop()
   }
-  
+
   if ('bittorrent' in task) {
     result['name'] = task.bittorrent.info.name
   }
@@ -70,4 +70,12 @@ const formatFiles = files => files.map(file => ({
 
 export const formatData = (data) => {
   return data.map(task => formatTask(task))
+}
+
+export const formateState = (data) => {
+  data['numPaused'] = data['numWaiting']
+  data['numCompleted'] = data['numStopped']
+  delete data['numWaiting']
+  delete data['numStopped']
+  return data
 }

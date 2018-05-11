@@ -6,9 +6,11 @@ const mapStateToProps = (state) => ({
   downloadList: state.downloadList
 })
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  updateUI: (ui) => dispatch({type: 'UPDATE_UI', payload: ui}),
-  updateDownload: () => dispatch({type: 'UPDATE_DOWNLOAD'})
+const mapDispatchToProps = (dispatch) => ({
+  updateUI: (ui) => dispatch({ type: 'UPDATE_UI', payload: ui }),
+  startAll: () => dispatch({ type: 'START_ALL' }),
+  pause: (gid) => dispatch({ type: 'PAUSE', payload: gid }),
+  pauseAll: () => dispatch({ type: 'PAUSE_ALL' })
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(DownloadList)

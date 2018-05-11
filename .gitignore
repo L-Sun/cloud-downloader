@@ -12,6 +12,9 @@
 # CSS
 /src/**/*.css
 
+# Aria2
+/aria2
+
 # misc
 .DS_Store
 .env.local
