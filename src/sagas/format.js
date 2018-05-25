@@ -69,12 +69,18 @@ const formatFiles = files => files.map(file => ({
 }))
 
 export const formatData = (data) => {
-  return data.map(task => formatTask(task))
+  let result = {}
+  data.map(task => result[task.gid] = formatTask(task))
+  return result
 }
 
 export const formateState = (data) => {
-  data['numPaused'] = data['numWaiting']
-  data['numCompleted'] = data['numStopped']
+  data['downloadSpeed'] = formatSize(data['downloadSpeed'], 'speed')
+  data['uploadSpeed'] = formatSize(data['uploadSpeed'], 'speed')
+  data['numActive'] = parseInt(data['numActive'], 10)
+  data['numPaused'] = parseInt(data['numWaiting'], 10)
+  data['numCompleted'] = parseInt(data['numStopped'], 10)
+  data['numStoppedTotal'] = parseInt(data['numStoppedTotal'], 10)
   delete data['numWaiting']
   delete data['numStopped']
   return data

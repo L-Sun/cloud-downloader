@@ -1,4 +1,4 @@
-import { all, call, put, fork, select } from 'redux-saga/effects'
+import { all, call, put, select } from 'redux-saga/effects'
 import {
   getGlobalStat,
   tellActive,
@@ -9,7 +9,9 @@ import {
   startAll,
   start,
   pauseAll,
-  pause
+  pause,
+  remove,
+  removeDownloadResult
 } from './apiCalls'
 import { formatData, formateState } from './format'
 
@@ -53,6 +55,7 @@ export function* fetchDownloadList() {
 
       yield put({ type: 'FETCH_LIST_SUCCESS', payload: downloadList })
     } catch (error) {
+      console.error('fetch list error', error)
       yield put({ type: 'FETCH_FAILD' })
     }
   }
@@ -64,17 +67,31 @@ export function* addDownload(action) {
     switch (action.type) {
       case 'ADD_URI':
         const url = action.payload
-        yield fork(addUri, config, url)
+        yield call(addUri, config, url)
         break
       case 'ADD_TORRENT':
         const torrent = action.payload
-        yield fork(addTorrent, config, torrent)
+        yield call(addTorrent, config, torrent)
         break
       default:
         break
     }
   } catch (error) {
-    console.error(error)
+    console.error('add download error', error)
+    yield put({ type: 'ADD_DOWNLOAD_FAILD' })
+  }
+}
+
+export function* removeDownload(action) {
+  try {
+    const config = yield select(getConfigFromState)
+    const gid = action.payload
+    yield call(remove, config, gid)
+    const result = yield call(removeDownloadResult, config, gid)
+    console.log(result)
+  } catch (error) {
+    console.error("remove error", error)
+    yield put({ type: 'REMOVE_DOWNLOAD_FAILD' })
   }
 }
 
@@ -83,16 +100,18 @@ export function* startDownload(action) {
     const config = yield select(getConfigFromState)
     switch (action.type) {
       case 'START_ALL':
-        yield fork(startAll, config)
+        yield call(startAll, config)
         break
       case 'START':
-        yield fork(start, config)
+        const gid = action.payload
+        yield call(start, config, gid)
         break
       default:
         break
     }
   } catch (error) {
-    console.error(error)
+    console.error('start error', error)
+    yield put({ type: 'START_DOWNLOAD_FAILD' })
   }
 }
 
@@ -101,16 +120,17 @@ export function* pauseDownload(action) {
     const config = yield select(getConfigFromState)
     switch (action.type) {
       case 'PAUSE_ALL':
-        yield fork(pauseAll, config)
+        yield call(pauseAll, config)
         break
       case 'PAUSE':
         const gid = action.payload
-        yield fork(pause, config, gid)
+        yield call(pause, config, gid)
         break
       default:
         break
     }
   } catch (error) {
-    console.error(error)
+    console.error('pause download error', error)
+    yield put({ type: 'PAUSE_DOWNLOAD_FAILD' })
   }
 }

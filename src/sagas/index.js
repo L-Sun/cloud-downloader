@@ -2,6 +2,7 @@ import { all, fork, takeLatest } from 'redux-saga/effects'
 import {
   fetchGlobalState,
   fetchDownloadList,
+  removeDownload,
   addDownload,
   pauseDownload,
   startDownload
@@ -14,6 +15,7 @@ function* rootSaga() {
     fork(fetchDownloadList),
     takeLatest('ADD_URI', addDownload),
     takeLatest('ADD_TORRENT', addDownload),
+    takeLatest('REMOVE_DOWNLOAD', removeDownload),
     takeLatest('START_ALL', startDownload),
     takeLatest('START', startDownload),
     takeLatest('PAUSE_ALL', pauseDownload),

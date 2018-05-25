@@ -3,18 +3,12 @@ import PropTypes from 'prop-types'
 import { withStyles } from 'material-ui/styles'
 import AppBar from 'material-ui/AppBar'
 import Toolbar from 'material-ui/Toolbar'
-import ExpansionPanel, {
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
-} from 'material-ui/ExpansionPanel'
-import { LinearProgress } from 'material-ui/Progress'
 import Checkbox from 'material-ui/Checkbox'
 import IconButton from 'material-ui/IconButton'
-import Typography from 'material-ui/Typography'
 import PlayArrowIcon from 'material-ui-icons/PlayArrow'
 import PauseIcon from 'material-ui-icons/Pause'
-import ArrowUpwardIcon from 'material-ui-icons/ArrowUpward'
-import ArrowDownwardIcon from 'material-ui-icons/ArrowDownward'
+import DeleteIcon from 'material-ui-icons/Delete'
+import DownloadItem from './DownloadItem.js'
 
 
 const styles = theme => ({
@@ -25,129 +19,126 @@ const styles = theme => ({
     marginLeft: 'auto',
     marginRight: 'auto'
   },
-  fileInfo: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    width: '100%',
+  list: {
+    marginTop: 24,
+    marginBottom: 24,
   },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-  },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    color: theme.palette.text.secondary
-  },
-  linearProgress: {
-    width: '100%',
-    alignSelf: 'flex-end',
-  },
-  speed: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    width: 100
-  },
-  speedIcon: {
-    display: 'inline-block',
-    width: 16,
-    height: 20,
-    verticalAlign: 'middle'
-  },
-  active: {
-    background: '#4285f4'
-  },
-  active_: {
-    background: '#80b4ff'
-  },
-  paused: {
-    background: '#757575'
-  },
-  paused_: {
-    background: '#a4a4a4'
-  },
-  completed: {
-    background: '#4caf50'
-  },
-  completed_: {
-    background: '#e53935'
-  }
 })
 
-const downloadItem = (item, index, classes, state = 'active') => {
-  return (
-    <ExpansionPanel key={index}>
-      <ExpansionPanelSummary className={classes.grid}>
-        <Checkbox onClick={(e) => e.stopPropagation()} />
-        <div className={classes.fileInfo}>
-          <div>
-            <Typography className={classes.heading}>{item.name}</Typography>
-            <Typography className={classes.secondaryHeading}>{item.completedSize} / {item.totalSize} ({item.progress}%)</Typography>
-          </div>
-          <div>
-            <div className={classes.speed}>
-              <ArrowUpwardIcon style={{ color: 'green' }} className={classes.speedIcon} />
-              <Typography>{item.uploadSpeed}</Typography>
-            </div>
-            <div className={classes.speed}>
-              <ArrowDownwardIcon style={{ color: 'red' }} className={classes.speedIcon} />
-              <Typography>{item.downloadSpeed}</Typography>
-            </div>
-          </div>
-          <LinearProgress
-            className={classes.linearProgress}
-            classes={{
-              barColorPrimary: classes[state],
-              colorPrimary: classes[state + '_']
-            }}
-            variant="determinate"
-            value={item.progress}
-          />
-        </div>
-      </ExpansionPanelSummary>
-    </ExpansionPanel>
-  )
-}
-
-
 class DownloadList extends Component {
+
+  state = {
+    selected: [],
+    showList: ['active', 'paused', 'completed']
+  }
 
   static propTypes = {
     classes: PropTypes.object.isRequired,
     downloadList: PropTypes.object.isRequired,
+    total_tasks: PropTypes.number.isRequired,
+    remove: PropTypes.func.isRequired,
+    start: PropTypes.func.isRequired,
     startAll: PropTypes.func.isRequired,
     pause: PropTypes.func.isRequired,
     pauseAll: PropTypes.func.isRequired,
   }
 
+  handleRemove = () => {
+    this.state.selected.map(gid => this.props.remove(gid))
+  }
+
   handleStart = () => {
-    this.props.startAll()
+    if (this.state.selected.length === 0) {
+      this.props.startAll()
+    } else {
+      this.state.selected.map(gid => {
+        if (this.props.downloadList['paused'].hasOwnProperty(gid)) {
+          this.props.start(gid)
+        }
+      })
+    }
   }
 
 
   handlePause = () => {
-    this.props.pauseAll()
+    if (this.state.selected.length === 0) {
+      this.props.pauseAll()
+    } else {
+      this.state.selected.map(gid => {
+        if (this.props.downloadList['active'].hasOwnProperty(gid)) {
+          this.props.pause(gid)
+        }
+      })
+    }
   }
 
+  isSelected = (gid) => this.state.selected.indexOf(gid) !== -1
+
+  handleSelect = (gid) => {
+    const { selected } = this.state
+    const gidIndex = selected.indexOf(gid)
+    if (gidIndex === -1) {
+      this.setState({ selected: [gid, ...this.state.selected] })
+    } else {
+      const newSelected = [...selected.slice(0, gidIndex), ...selected.slice(gidIndex + 1)]
+      this.setState({ selected: newSelected })
+    }
+  }
+
+  handleSelectAll = (event, checked) => {
+    const { downloadList } = this.props
+    if (checked) {
+      let newSelected = []
+      this.state.showList.map(key =>
+        newSelected = [...newSelected, ...Object.keys(downloadList[key])]
+      )
+      this.setState({ selected: newSelected })
+    } else {
+      this.setState({ selected: [] })
+    }
+  }
 
   render() {
-    const { downloadList, classes } = this.props
+    const { downloadList, total_tasks, classes } = this.props
     return (
       <div className={classes.root}>
         <AppBar position="static" color="inherit" elevation={1}>
           <Toolbar>
-            <Checkbox onClick={(e) => e.stopPropagation()} />
+            <Checkbox
+              checked={this.state.selected.length > 0}
+              indeterminate={this.state.selected.length > 0 && this.state.selected.length < total_tasks}
+              onChange={(e, c) => {
+                this.handleSelectAll(e, c)
+              }}
+            />
             <IconButton onClick={this.handleStart}>
               <PlayArrowIcon />
             </IconButton>
             <IconButton onClick={this.handlePause}>
               <PauseIcon />
             </IconButton>
+            <IconButton onClick={this.handleRemove}>
+              <DeleteIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
-        {downloadList.active.map((item, index) => downloadItem(item, index, classes, 'active'))}
-        {downloadList.paused.map((item, index) => downloadItem(item, index, classes, 'paused'))}
-        {downloadList.completed.map((item, index) => downloadItem(item, index, classes, 'completed'))}
+        {
+          Object.keys(downloadList).map((key) => {
+            if (this.state.showList.indexOf(key) !== -1) {
+              return (
+                Object.values(downloadList[key]).map(item => (
+                  <DownloadItem key={item.gid}
+                    info={item}
+                    state={key}
+                    isSelected={this.isSelected}
+                    handleSelect={this.handleSelect}
+                  />
+                ))
+              )
+            }
+            return null
+          })
+        }
       </div>
     )
   }

@@ -1,6 +1,7 @@
 {
   "name": "cloud-downloader",
   "version": "0.1.0",
+  "homepage": "http://lab.lawliet.pw/cloud-downloader",
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
