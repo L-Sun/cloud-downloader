@@ -5,9 +5,10 @@ const mapStateToProps = (state) => ({
   open: state.ui.isAddDownloadOpened
 })
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-      updateUI: (ui) => dispatch({type: 'UPDATE_UI', payload: ui}),
-      addDownload: (url) => dispatch({type: 'ADD_DOWNLOAD', payload: url})
+const mapDispatchToProps = (dispatch) => ({
+  updateUI: (ui) => dispatch({ type: 'UPDATE_UI', payload: ui }),
+  addUri: (uri) => dispatch({ type: 'ADD_URI', payload: uri }),
+  addTorrent: (torrent) => dispatch({ type: 'ADD_TORRENT', payload: torrent })
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddDownload)

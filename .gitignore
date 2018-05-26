@@ -12,8 +12,13 @@
 # CSS
 /src/**/*.css
 
+<<<<<<< HEAD
 # vscode
 /.vscode
+=======
+# Aria2
+/aria2
+>>>>>>> develop
 
 # misc
 .DS_Store

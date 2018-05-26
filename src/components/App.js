@@ -58,7 +58,7 @@ class App extends Component {
     theme: PropTypes.object.isRequired
   }
 
-  handleResize = (e) => {
+  handleResize = () => {
     const width = 1300
     const { ui, updateUI } = this.props
     if (window.innerWidth <= width && ui.isNavOpened) {
@@ -69,8 +69,8 @@ class App extends Component {
     }
   }
 
-  handleAddDownload = (e) => {
-    this.props.updateUI({isAddDownloadOpened: true})
+  handleAddDownload = () => {
+    this.props.updateUI({ isAddDownloadOpened: true })
   }
 
   componentDidMount = () => {
