@@ -43,15 +43,22 @@ const formatTask = (task) => {
     uploadSpeed: formatSize(task.uploadSpeed, "speed"),
     downloadSpeed: formatSize(task.downloadSpeed, "speed"),
     remainingTime: formatTime(task.completedLength, task.totalLength, task.downloadSpeed),
-    files: formatFiles(task.files)
+    files: formatFiles(task.files),
+    connections: task.connections,
+    status: task.status,
+  }
+
+  if ('bittorrent' in task) {
+    if ('info' in task.bittorrent) {
+      result['name'] = task.bittorrent.info.name
+    } else {
+      result['name'] = 'loading...'
+    }
+    return result
   }
 
   if (task.files.length === 1) {
     result['name'] = task.files[0].path.split('/').pop()
-  }
-
-  if ('bittorrent' in task) {
-    result['name'] = task.bittorrent.info.name
   }
 
   return result
@@ -64,7 +71,7 @@ const formatFiles = files => files.map(file => ({
   totalSize: formatSize(file.length, "size"),
   completedSize: formatSize(file.completedLength, "size"),
   progress: formatProgress(file.completedLength, file.length),
-  selected: file.selected,
+  selected: file.selected === 'true' ? true : false,
   uri: file.uri
 }))
 

@@ -1,23 +1,26 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { withStyles } from 'material-ui/styles'
-import AppBar from 'material-ui/AppBar'
-import Toolbar from 'material-ui/Toolbar'
-import Checkbox from 'material-ui/Checkbox'
-import IconButton from 'material-ui/IconButton'
-import PlayArrowIcon from 'material-ui-icons/PlayArrow'
-import PauseIcon from 'material-ui-icons/Pause'
-import DeleteIcon from 'material-ui-icons/Delete'
+import { withStyles } from '@material-ui/core/styles'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Checkbox from '@material-ui/core/Checkbox'
+import IconButton from '@material-ui/core/IconButton'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import PauseIcon from '@material-ui/icons/Pause'
+import DeleteIcon from '@material-ui/icons/Delete'
 import DownloadItem from './DownloadItem.js'
 
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     flexGrow: 1,
     maxWidth: '70%',
     margin: 12,
     marginLeft: 'auto',
     marginRight: 'auto'
+  },
+  toolbar: {
+    padding: '0 24px 0 24px'
   },
   list: {
     marginTop: 24,
@@ -29,7 +32,7 @@ class DownloadList extends Component {
 
   state = {
     selected: [],
-    showList: ['active', 'paused', 'completed']
+    expanded: '',
   }
 
   static propTypes = {
@@ -37,22 +40,37 @@ class DownloadList extends Component {
     downloadList: PropTypes.object.isRequired,
     total_tasks: PropTypes.number.isRequired,
     remove: PropTypes.func.isRequired,
+    purge: PropTypes.func.isRequired,
     start: PropTypes.func.isRequired,
     startAll: PropTypes.func.isRequired,
     pause: PropTypes.func.isRequired,
     pauseAll: PropTypes.func.isRequired,
+    deselectFile: PropTypes.func.isRequired,
+  }
+
+  handleExpand = gid => {
+    const is_expanded = this.state.expanded === gid
+    this.setState({ expanded: is_expanded ? '' : gid })
+
   }
 
   handleRemove = () => {
-    this.state.selected.map(gid => this.props.remove(gid))
+    this.state.selected.forEach(gid => {
+      let status = this.props.downloadList[gid].status
+      if (status === 'active' || status === 'paused') {
+        this.props.remove(gid)
+      } else {
+        this.props.purge(gid)
+      }
+    })
   }
 
   handleStart = () => {
     if (this.state.selected.length === 0) {
       this.props.startAll()
     } else {
-      this.state.selected.map(gid => {
-        if (this.props.downloadList['paused'].hasOwnProperty(gid)) {
+      this.state.selected.forEach(gid => {
+        if (this.props.downloadList[gid].status === 'paused') {
           this.props.start(gid)
         }
       })
@@ -64,8 +82,8 @@ class DownloadList extends Component {
     if (this.state.selected.length === 0) {
       this.props.pauseAll()
     } else {
-      this.state.selected.map(gid => {
-        if (this.props.downloadList['active'].hasOwnProperty(gid)) {
+      this.state.selected.forEach(gid => {
+        if (this.props.downloadList[gid].status === 'active') {
           this.props.pause(gid)
         }
       })
@@ -88,25 +106,22 @@ class DownloadList extends Component {
   handleSelectAll = (event, checked) => {
     const { downloadList } = this.props
     if (checked) {
-      let newSelected = []
-      this.state.showList.map(key =>
-        newSelected = [...newSelected, ...Object.keys(downloadList[key])]
-      )
-      this.setState({ selected: newSelected })
+      this.setState({ selected: Object.keys(downloadList) })
     } else {
       this.setState({ selected: [] })
     }
   }
 
   render() {
-    const { downloadList, total_tasks, classes } = this.props
+    const { downloadList, total_tasks, deselectFile, classes } = this.props
+    const { selected, expanded } = this.state
     return (
       <div className={classes.root}>
         <AppBar position="static" color="inherit" elevation={1}>
-          <Toolbar>
+          <Toolbar className={classes.toolbar} disableGutters={true}>
             <Checkbox
-              checked={this.state.selected.length > 0}
-              indeterminate={this.state.selected.length > 0 && this.state.selected.length < total_tasks}
+              checked={selected.length > 0}
+              indeterminate={selected.length > 0 && selected.length < total_tasks}
               onChange={(e, c) => {
                 this.handleSelectAll(e, c)
               }}
@@ -123,21 +138,16 @@ class DownloadList extends Component {
           </Toolbar>
         </AppBar>
         {
-          Object.keys(downloadList).map((key) => {
-            if (this.state.showList.indexOf(key) !== -1) {
-              return (
-                Object.values(downloadList[key]).map(item => (
-                  <DownloadItem key={item.gid}
-                    info={item}
-                    state={key}
-                    isSelected={this.isSelected}
-                    handleSelect={this.handleSelect}
-                  />
-                ))
-              )
-            }
-            return null
-          })
+          Object.keys(downloadList).map(gid => (
+            <DownloadItem key={gid}
+              info={downloadList[gid]}
+              expanded={expanded}
+              isSelected={this.isSelected}
+              handleFileDeselect={deselectFile}
+              handleSelect={this.handleSelect}
+              handleExpand={this.handleExpand}
+            />
+          ))
         }
       </div>
     )

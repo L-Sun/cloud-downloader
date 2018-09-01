@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { withStyles } from 'material-ui/styles'
-import Dialog, { DialogActions, DialogContent, DialogTitle } from 'material-ui/Dialog'
-import TextField from 'material-ui/TextField'
-import Button from 'material-ui/Button'
-import IconButton from 'material-ui/IconButton'
-import Visibility from 'material-ui-icons/Visibility'
-import VisibilityOff from 'material-ui-icons/VisibilityOff'
-import { InputAdornment } from 'material-ui/Input';
+import { withStyles } from '@material-ui/core/styles'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const styles = () => ({
   dialogContent: {

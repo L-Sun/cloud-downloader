@@ -12,7 +12,7 @@ const rootElement = document.getElementById('root')
 const sagaMiddleware = createSagaMiddleware()
 
 let store
-if (!(window.__REDUX_DEVTOOLS_EXTENSION__ || window.__REDUX_DEVTOOLS_EXTENSION__)){
+if (!(window.__REDUX_DEVTOOLS_EXTENSION__ || window.__REDUX_DEVTOOLS_EXTENSION__)) {
     store = createStore(rootReducer, compose(
         applyMiddleware(sagaMiddleware),
     ))
@@ -22,7 +22,7 @@ if (!(window.__REDUX_DEVTOOLS_EXTENSION__ || window.__REDUX_DEVTOOLS_EXTENSION__
         window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
     ))
 }
-    
+
 
 sagaMiddleware.run(rootSaga)
 
