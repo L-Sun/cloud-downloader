@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const formatConfig = (config, method, ...params) => ({
-  address: 'https://' + config.host + ':' + config.port + '/jsonrpc',
+  address: config.host + ':' + config.port + '/jsonrpc',
   req_payload: {
     id: '1',
     jsonrpc: '2.0',
@@ -56,13 +56,13 @@ export const addTorrent = (config, torrent) => {
 }
 
 export const remove = (config, gid) => {
-  const { address, req_payload } = formatConfig(config, 'remove', gid)
+  const { address, req_payload } = formatConfig(config, 'forceRemove', gid)
 
   return post(address, req_payload)
 }
 
 export const removeDownloadResult = (config, gid) => {
-  const { address, req_payload } = formatConfig(config, 'purgeDownloadResult', gid)
+  const { address, req_payload } = formatConfig(config, 'removeDownloadResult', gid)
 
   return post(address, req_payload)
 }
@@ -88,6 +88,12 @@ export const pauseAll = (config) => {
 
 export const pause = (config, gid) => {
   const { address, req_payload } = formatConfig(config, 'pause', gid)
+
+  return post(address, req_payload)
+}
+
+export const changeOption = (config, gid, option) => {
+  const { address, req_payload } = formatConfig(config, 'changeOption', gid, option)
 
   return post(address, req_payload)
 }

@@ -11,7 +11,8 @@ import {
   pauseAll,
   pause,
   remove,
-  removeDownloadResult
+  removeDownloadResult,
+  changeOption
 } from './apiCalls'
 import { formatData, formateState } from './format'
 
@@ -48,9 +49,9 @@ export function* fetchDownloadList() {
       ])
 
       const downloadList = {
-        active: formatData(response[0].data.result),
-        paused: formatData(response[1].data.result),
-        completed: formatData(response[2].data.result)
+        ...formatData(response[0].data.result),
+        ...formatData(response[1].data.result),
+        ...formatData(response[2].data.result)
       }
 
       yield put({ type: 'FETCH_LIST_SUCCESS', payload: downloadList })
@@ -87,11 +88,21 @@ export function* removeDownload(action) {
     const config = yield select(getConfigFromState)
     const gid = action.payload
     yield call(remove, config, gid)
-    const result = yield call(removeDownloadResult, config, gid)
-    console.log(result)
+    yield call(removeDownloadResult, config, gid)
   } catch (error) {
     console.error("remove error", error)
     yield put({ type: 'REMOVE_DOWNLOAD_FAILD' })
+  }
+}
+
+export function* purgeDownload(action) {
+  try {
+    const config = yield select(getConfigFromState)
+    const gid = action.payload
+    yield call(removeDownloadResult, config, gid)
+  } catch (error) {
+    console.error("purge error", error)
+    yield put({ type: 'PURGE_DOWNLOAD_FAILD' })
   }
 }
 
@@ -132,5 +143,16 @@ export function* pauseDownload(action) {
   } catch (error) {
     console.error('pause download error', error)
     yield put({ type: 'PAUSE_DOWNLOAD_FAILD' })
+  }
+}
+
+export function* deselectFile(action) {
+  try {
+    const config = yield select(getConfigFromState)
+    const { gid, index } = action.payload
+    yield call(changeOption, config, gid, { 'select-file': index })
+  } catch (error) {
+    console.error('deselectFile error', error)
+    yield put({ type: 'DESELECT_FILE_FAILD' })
   }
 }
