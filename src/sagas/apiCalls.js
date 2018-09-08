@@ -98,3 +98,10 @@ export const changeOption = (config, gid, option) => {
   return post(address, req_payload)
 }
 
+export const getPeers = (config, gid) => {
+  const { address, req_payload } = formatConfig(config, 'getPeers', gid)
+
+  return post(address, req_payload)
+}
+
+

@@ -1,7 +1,7 @@
 const initialState = {
-  isNavOpened: true,
   isConfigPanelOpened: false,
-  isAddDownloadOpened: false
+  isAddDownloadOpened: false,
+  isMobile: false
 }
 
 export default (state = initialState, action) => {

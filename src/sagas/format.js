@@ -46,9 +46,11 @@ const formatTask = (task) => {
     files: formatFiles(task.files),
     connections: task.connections,
     status: task.status,
+    bittorrent: false
   }
 
   if ('bittorrent' in task) {
+    result['bittorrent'] = true
     if ('info' in task.bittorrent) {
       result['name'] = task.bittorrent.info.name
     } else {
@@ -77,9 +79,25 @@ const formatFiles = files => files.map(file => ({
 
 export const formatData = (data) => {
   let result = {}
-  data.map(task => result[task.gid] = formatTask(task))
+  data.forEach(task => result[task.gid] = formatTask(task))
   return result
 }
+
+export const formatePeers = (data) => {
+  const result = data.map(item => ({
+    amChoking : item.amChoking === 'true'?true:false,
+    peerChoking : item.peerChoking === 'true' ? true : false,
+    progress: formatProgress(item.bitfield.search(/[^f]/),item.bitfield.length),
+    ip : item.ip,
+    uploadSpeed : formatSize(item.uploadSpeed, 'speed'),
+    downloadSpeed : formatSize(item.downloadSpeed, 'speed'),
+    seeder : item.seeder === 'true' ? true : false,
+    port : item.port,
+    peerId : item.peerId
+  }))
+  return result
+}
+
 
 export const formateState = (data) => {
   data['downloadSpeed'] = formatSize(data['downloadSpeed'], 'speed')

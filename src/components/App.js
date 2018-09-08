@@ -9,10 +9,12 @@ import Tooltip from '@material-ui/core/Tooltip'
 import AddIcon from '@material-ui/icons/Add'
 import Typography from '@material-ui/core/Typography'
 
-import Navigation from '../containers/Navigation'
 import DownloadList from '../containers/DownloadList'
 import ConfigPanel from '../containers/ConfigPanel'
 import AddDownload from '../containers/AddDownload'
+import { IconButton } from '@material-ui/core';
+import SettingsIcon from '@material-ui/icons/Settings'
+
 
 const theme = createMuiTheme({
   palette: {
@@ -39,12 +41,11 @@ const styles = theme => ({
     height: '100%',
     background: '#f5f5f5'
   },
-  mixinsBar: {
-    ...theme.mixins.toolbar,
-    width: '100%'
+  flex: {
+    flexGrow: 1,
   },
   addIcon: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: theme.spacing.unit * 2,
     right: theme.spacing.unit * 3
   }
@@ -59,19 +60,24 @@ class App extends Component {
   }
 
   handleResize = () => {
-    const width = 1300
-    const { ui, updateUI } = this.props
-    if (window.innerWidth <= width && ui.isNavOpened) {
-      updateUI({ isNavOpened: false })
+    const width = 600
+    const { updateUI } = this.props
+    if (window.innerWidth <= width) {
+      updateUI({ isMobile: true })
+    } else {
+      updateUI({ isMobile: false })
     }
-    if (window.innerWidth >= width && !ui.isNavOpened) {
-      updateUI({ isNavOpened: true })
-    }
+    
   }
 
   handleAddDownload = () => {
     this.props.updateUI({ isAddDownloadOpened: true })
   }
+
+  handleConfig = () => {
+    this.props.updateUI({ isConfigPanelOpened: true })
+  }
+  
 
   componentDidMount = () => {
     this.handleResize()
@@ -87,15 +93,20 @@ class App extends Component {
     return (
       <MuiThemeProvider theme={theme}>
         <div className={classes.root}>
-          <AppBar color="primary">
-            <Toolbar className={classes.toolBar}>
-              <Typography variant="title" color="inherit">
+          <AppBar color="primary" position="static">
+            <Toolbar>
+              <Typography variant="title" color="inherit" className={classes.flex}>
                 Could Downloader
               </Typography>
+              <IconButton
+                color="inherit"
+                onClick={this.handleConfig}
+              >
+                <SettingsIcon/>
+              </IconButton>
             </Toolbar>
           </AppBar>
           <div className={classes.mixinsBar} />
-          <Navigation />
           <DownloadList />
           <ConfigPanel />
           <AddDownload />

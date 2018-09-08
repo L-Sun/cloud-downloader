@@ -20,7 +20,7 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'center',
-    minWidth: 500
+    // minWidth: 500
   },
   inputUpload: {
     display: 'none'

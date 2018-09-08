@@ -10,14 +10,21 @@ import PauseIcon from '@material-ui/icons/Pause'
 import DeleteIcon from '@material-ui/icons/Delete'
 import DownloadItem from './DownloadItem.js'
 
+const root = {
+  flexGrow: 1,
+  margin: 12,
+  marginLeft: 'auto',
+  marginRight: 'auto'
+}
 
 const styles = () => ({
   root: {
-    flexGrow: 1,
-    maxWidth: '70%',
-    margin: 12,
-    marginLeft: 'auto',
-    marginRight: 'auto'
+    ...root,
+    maxWidth: '70%'
+  },
+  narrow_row: {
+    ...root,
+    width: '100%'
   },
   toolbar: {
     padding: '0 24px 0 24px'
@@ -36,6 +43,7 @@ class DownloadList extends Component {
   }
 
   static propTypes = {
+    isMobile: PropTypes.bool.isRequired,
     classes: PropTypes.object.isRequired,
     downloadList: PropTypes.object.isRequired,
     total_tasks: PropTypes.number.isRequired,
@@ -113,10 +121,10 @@ class DownloadList extends Component {
   }
 
   render() {
-    const { downloadList, total_tasks, deselectFile, classes } = this.props
+    const { isMobile, downloadList, total_tasks, deselectFile, classes } = this.props
     const { selected, expanded } = this.state
     return (
-      <div className={classes.root}>
+      <div className={isMobile? classes.narrow_root:classes.root}>
         <AppBar position="static" color="inherit" elevation={1}>
           <Toolbar className={classes.toolbar} disableGutters={true}>
             <Checkbox

@@ -9,6 +9,7 @@ import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import SwipeableViews from 'react-swipeable-views'
 import Checkbox from '@material-ui/core/Checkbox'
+import Switch from '@material-ui/core/Switch'
 import List from '@material-ui/core/List'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import ListItem from '@material-ui/core/ListItem'
@@ -24,6 +25,14 @@ const styles = theme => ({
     alignItems: 'center',
     flexWrap: 'wrap',
     width: '100%',
+    margin: 'auto'
+  },
+  peerInfo: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    borderTop: 'solid 1px #ccc'
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -38,14 +47,12 @@ const styles = theme => ({
   },
   speed: {
     display: 'flex',
-    justifyContent: 'space-between',
-    width: 80
+    justifyContent: 'space-between'
   },
   speedIcon: {
     display: 'inline-block',
     width: 16,
-    height: 20,
-    verticalAlign: 'middle'
+    height: 20
   },
   active: {
     background: '#4285f4'
@@ -67,8 +74,9 @@ const styles = theme => ({
   },
   detials: {
     display: 'block',
+    paddingRight: '72px',
     paddingLeft: '72px',
-    paddingRight: '72px'
+    margin: 'auto'
   }
 })
 
@@ -85,33 +93,48 @@ class DownloadItem extends Component {
 
   state = {
     tab_value: 0,
-    isFileSelected: this.props.info.files.map(file => file.selected)
+    selectedList: this.props.info.files.filter(file => file.selected).map(file=>file.index),
+    isEditing: false
   }
 
   handleTabChange = (event, value) => {
     this.setState({ tab_value: value })
   }
 
-  handleFileDeselect = (gid, index) => {
-    const { handleFileDeselect } = this.props
-    let isFileSelected = this.state.isFileSelected
-    isFileSelected[index - 1] = !isFileSelected[index - 1]
-    this.setState({ isFileSelect: isFileSelected })
-
-    let selected = ''
-    isFileSelected.forEach((isSelected, i) => {
-      if (isSelected) {
-        selected += (i + 1) + ','
-      }
-    })
-    selected = selected.slice(0, -1)
-    handleFileDeselect(gid, selected)
-    this.setState({ isFileSelect: isFileSelected })
+  handeleEdit = () => {
+    const isEditing = !this.state.isEditing
+    this.setState({ isEditing: isEditing })
+    if (!isEditing) {
+      const { handleFileDeselect, info } = this.props
+      handleFileDeselect(info.gid, this.state.selectedList.toString())
+    }
   }
+  handleSelectFile = (index) => {
+    let selectedList = this.state.selectedList
+    const find = selectedList.indexOf(index)
+    if (find !== -1) {
+      selectedList.splice(find, 1)
+    } else {
+      selectedList.push(index)
+    }
+    this.setState({ selectedList: selectedList })
+  }
+
+  handleSelectAllFile = () => {
+    const {files} = this.props.info
+    let selectedList
+    if (files.length !== this.state.selectedList.length) {
+      selectedList = files.map(file => file.index)
+    } else {
+      selectedList = []
+    }
+    this.setState({ selectedList: selectedList })
+  }
+
 
   render() {
     const { classes, info, isSelected, handleSelect, handleExpand, expanded } = this.props
-    const { tab_value, isFileSelected } = this.state
+    const { tab_value, selectedList, isEditing } = this.state
     return (
       <ExpansionPanel expanded={expanded === info.gid} key={info.gid} onChange={() => handleExpand(info.gid)}>
         <ExpansionPanelSummary>
@@ -157,12 +180,31 @@ class DownloadItem extends Component {
           >
             <section>
               <List className={classes.file_list} dense={true}>
-                <ListSubheader>文件列表</ListSubheader>
+                <ListSubheader>
+                  <Switch 
+                    checked={isEditing}
+                    onChange={this.handeleEdit}
+                  />
+                  文件列表
+                </ListSubheader>
+                {isEditing && (
+                  <ListItem>
+                    <Checkbox
+                      checked={selectedList.length > 0}
+                      indeterminate={selectedList.length > 0 && selectedList.length < info.files.length}
+                      onChange={this.handleSelectAllFile}
+                    />
+                    <ListItemText 
+                      primary={"已选 " + selectedList.length + " 个文件"}
+                    />
+                  </ListItem>
+                )}
                 {info.files.map((file, index) => (
                   <ListItem key={index}>
                     <Checkbox
-                      checked={isFileSelected[index]}
-                      onClick={() => this.handleFileDeselect(info.gid, file.index)}
+                      disabled={!isEditing}
+                      checked={selectedList.indexOf(file.index) !== -1}
+                      onClick={() => this.handleSelectFile(file.index)}
                     />
                     <ListItemText primary={file.name} />
                   </ListItem>
@@ -170,7 +212,23 @@ class DownloadItem extends Component {
               </List>
             </section>
             <section>
-              
+              {info.peers.map((peer, index) => (
+                <List dense={true} key={index} className={classes.peerInfo}>
+                    <section>
+                      <Typography className={classes.heading}>{peer.ip} ({peer.progress}%)</Typography>
+                    </section>
+                    <section>
+                      <span className={classes.speed}>
+                        <ArrowUpwardIcon style={{ color: 'green' }} className={classes.speedIcon} />
+                        <Typography>{peer.uploadSpeed}</Typography>
+                      </span>
+                      <span className={classes.speed}>
+                        <ArrowDownwardIcon style={{ color: 'red' }} className={classes.speedIcon} />
+                        <Typography>{peer.downloadSpeed}</Typography>
+                      </span>
+                    </section>
+                </List>
+              ))}
             </section>
           </SwipeableViews>
         </ExpansionPanelDetails>

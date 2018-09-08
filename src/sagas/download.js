@@ -4,6 +4,7 @@ import {
   tellActive,
   tellCompleted,
   tellPaused,
+  getPeers,
   addUri,
   addTorrent,
   startAll,
@@ -12,9 +13,9 @@ import {
   pause,
   remove,
   removeDownloadResult,
-  changeOption
+  changeOption,
 } from './apiCalls'
-import { formatData, formateState } from './format'
+import { formatData, formateState, formatePeers } from './format'
 
 const delay = () => new Promise(resolve => setTimeout(resolve, 2000))
 const getConfigFromState = state => state.config
@@ -48,10 +49,17 @@ export function* fetchDownloadList() {
         call(tellCompleted, config, parseInt(globalState.numCompleted, 10))
       ])
 
-      const downloadList = {
+      let downloadList = {
         ...formatData(response[0].data.result),
         ...formatData(response[1].data.result),
         ...formatData(response[2].data.result)
+      }
+
+      for (const gid in downloadList) {
+        if (downloadList.hasOwnProperty(gid) && downloadList[gid].bittorrent) {
+          const response = yield call(getPeers, config, gid)
+          downloadList[gid]['peers'] = formatePeers(response.data.result)
+        }
       }
 
       yield put({ type: 'FETCH_LIST_SUCCESS', payload: downloadList })
@@ -61,6 +69,7 @@ export function* fetchDownloadList() {
     }
   }
 }
+
 
 export function* addDownload(action) {
   try {
@@ -154,5 +163,16 @@ export function* deselectFile(action) {
   } catch (error) {
     console.error('deselectFile error', error)
     yield put({ type: 'DESELECT_FILE_FAILD' })
+  }
+}
+
+export function* downloadLimit(action) {
+  try {
+    const config = yield select(getConfigFromState)
+    const {gid, speed} = action.payload
+    yield call(changeOption, config, gid, {'max-download-limit': speed})
+  } catch (error) {
+    console.error('limit download speed error', error)
+    yield put({ type: 'DOWNLOAD_LIMIT_FALID' })
   }
 }
