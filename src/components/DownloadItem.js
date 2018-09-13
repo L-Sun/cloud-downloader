@@ -212,7 +212,7 @@ class DownloadItem extends Component {
               </List>
             </section>
             <section>
-              {info.peers.map((peer, index) => (
+              {info.peers && info.peers.map((peer, index) => (
                 <List dense={true} key={index} className={classes.peerInfo}>
                     <section>
                       <Typography className={classes.heading}>{peer.ip} ({peer.progress}%)</Typography>
