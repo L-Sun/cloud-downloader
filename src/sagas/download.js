@@ -56,7 +56,7 @@ export function* fetchDownloadList() {
       }
 
       for (const gid in downloadList) {
-        if (downloadList.hasOwnProperty(gid) && downloadList[gid].bittorrent) {
+        if (downloadList[gid].bittorrent && downloadList[gid].status === 'active') {
           const response = yield call(getPeers, config, gid)
           downloadList[gid]['peers'] = formatePeers(response.data.result)
         }
@@ -169,8 +169,8 @@ export function* deselectFile(action) {
 export function* downloadLimit(action) {
   try {
     const config = yield select(getConfigFromState)
-    const {gid, speed} = action.payload
-    yield call(changeOption, config, gid, {'max-download-limit': speed})
+    const { gid, speed } = action.payload
+    yield call(changeOption, config, gid, { 'max-download-limit': speed })
   } catch (error) {
     console.error('limit download speed error', error)
     yield put({ type: 'DOWNLOAD_LIMIT_FALID' })

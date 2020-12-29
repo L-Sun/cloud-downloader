@@ -49,13 +49,9 @@ const formatTask = (task) => {
     bittorrent: false
   }
 
-  if ('bittorrent' in task) {
+  if ('bittorrent' in task && 'info' in task.bittorrent) {
     result['bittorrent'] = true
-    if ('info' in task.bittorrent) {
-      result['name'] = task.bittorrent.info.name
-    } else {
-      result['name'] = 'loading...'
-    }
+    result['name'] = task.bittorrent.info.name
     return result
   }
 
@@ -85,15 +81,15 @@ export const formatData = (data) => {
 
 export const formatePeers = (data) => {
   const result = data.map(item => ({
-    amChoking : item.amChoking === 'true'?true:false,
-    peerChoking : item.peerChoking === 'true' ? true : false,
-    progress: formatProgress(item.bitfield.search(/[^f]/),item.bitfield.length),
-    ip : item.ip,
-    uploadSpeed : formatSize(item.uploadSpeed, 'speed'),
-    downloadSpeed : formatSize(item.downloadSpeed, 'speed'),
-    seeder : item.seeder === 'true' ? true : false,
-    port : item.port,
-    peerId : item.peerId
+    amChoking: item.amChoking === 'true' ? true : false,
+    peerChoking: item.peerChoking === 'true' ? true : false,
+    progress: formatProgress(item.bitfield.search(/[^f]/), item.bitfield.length),
+    ip: item.ip,
+    uploadSpeed: formatSize(item.uploadSpeed, 'speed'),
+    downloadSpeed: formatSize(item.downloadSpeed, 'speed'),
+    seeder: item.seeder === 'true' ? true : false,
+    port: item.port,
+    peerId: item.peerId
   }))
   return result
 }
